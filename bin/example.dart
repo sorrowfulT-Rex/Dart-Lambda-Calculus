@@ -105,7 +105,7 @@ void _evaluationsByValue() {
   ]);
   // We use the .eval() method to evaluate a lambda expression fully.
   print("2. Evaluate 'test false 2 1' directly to its simplest form: ");
-  print('    $temp' + '\n  = ' + temp.eval().toString());
+  print('    $temp\n  = ' + temp.eval().toString());
   temp = Lambda(
     type: LambdaType.ABSTRACTION,
     exp1: Lambda.applyAll(
@@ -114,7 +114,7 @@ void _evaluationsByValue() {
   );
   // Demonstration of the "call by value" scheme.
   print('3. An application within an abstraction is not reduced: ');
-  print('    $temp' + '\n  = ' + temp.eval().toString());
+  print('    $temp\n  = ' + temp.eval().toString());
   temp = Lambda.applyAll([
     LambdaConstants.lambdaSucc,
     LambdaConstants.lambdaTwo,
@@ -122,9 +122,9 @@ void _evaluationsByValue() {
   // Another example: 'succ 2' results an expression behaviourally equivalent to
   // but syntactically distinct from 3.
   print("4. Evaluate 'succ 2', but the result is not the same as '3': ");
-  print('    $temp' + '\n  = ' + temp.eval().toString());
+  print('    $temp\n  = ' + temp.eval().toString());
   print("5. Evaluate 'succ 2', converting it to a natural number: ");
-  print('    $temp' + '\n  = ' + temp.toInt().toString());
+  print('    $temp\n  = ' + temp.toInt().toString());
   print('');
 }
 
@@ -223,6 +223,8 @@ void _factorial() {
     '''
         .toLambda()!,
   ]);
+  print('The factorial lamdba expression: ');
+  print('    $factorial');
   print('1. Evaluate 0!: ');
   result = Lambda.applyAll([factorial, LambdaConstants.lambdaZero]).eval();
   print('    $result');
