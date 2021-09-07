@@ -213,9 +213,9 @@ void _factorial() {
   final factorial = Lambda.applyAll([
     LambdaConstants.yCombinator,
     r'''
-    \a\b(\c\d\e c d e)((\c c(\d\e\a a)\d\e d)b)(\c\d\e d e)(\c(\d\e\a d(e a))b
-    (a((\d(\e e(\a\b a))(d(\e(\a\b\c c a b)((\a a(\b\c c))e)((\a\b\c b(a b c))
-    ((\a a(\b\c c))e)))((\e\a\b b e a)(\e\a a)(\e\a a))))b)))(\0)
+    \a\b(\\c\2 c 0)((\0(\\\0)(\\1))b)(\\\1 0)(\(\\d\2(d 0))b(a((\c(\0(\\1))
+    (c(\d(\a\b\0 a b)((\0(\\0))d)((\a\\1(a 1 0))((\0(\\0))d)))((\d\a\0 d a)(\\0)
+    (\\0))))b)))(\0)
     '''
         .toLambda()!,
   ]);

@@ -80,11 +80,6 @@ List<LambdaToken>? _lambdaLexer(String str) {
       case r'\':
         bracketStack.last++;
         if (!iterator.moveNext()) return null;
-        // Ignore spaces.
-        while (blank.hasMatch(String.fromCharCode(iterator.current))) {
-          if (!iterator.moveNext()) return null;
-        }
-
         // Determine the name of the variable.
         final tempVarBuffer = StringBuffer();
         // MARK: Anonymous Variable
