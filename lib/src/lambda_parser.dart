@@ -1,0 +1,226 @@
+import 'package:lambda_calculus/src/lambda.dart';
+
+enum LambdaTokenType {
+  LAMBDA,
+  SPACE,
+  LBRACE,
+  RBRACE,
+  VARIABLE,
+}
+
+class LambdaToken {
+  LambdaToken(
+    this.type,
+    this.index,
+  );
+  final LambdaTokenType type;
+  final int? index;
+
+  @override
+  String toString() {
+    switch (type) {
+      case LambdaTokenType.LAMBDA:
+        return '{λ}';
+      case LambdaTokenType.SPACE:
+        return '{ }';
+      case LambdaTokenType.LBRACE:
+        return '{(}';
+      case LambdaTokenType.RBRACE:
+        return '{)}';
+      case LambdaTokenType.VARIABLE:
+        return '{x$index}';
+    }
+  }
+}
+
+/// Convert a [String] to a [List]<[LambdaToken]>?.
+///
+/// Returns null only if the [String] is not a valid lambda expression.
+List<LambdaToken>? lambdaLexer(String str) {
+  final tokens = <LambdaToken>[];
+  final iterator = str.runes.iterator;
+  final boundedVarStack = <String>[];
+  final freeVarStack = <String>[];
+  final bracketStack = [0];
+  final alpha = RegExp(r'^[a-zA-Z]+$');
+  final alphanumeric = RegExp(r'^[a-zA-Z0-9]+$');
+  final blank = RegExp(r'^[\r\n\t\v ]+$');
+  while (iterator.moveNext()) {
+    switch (String.fromCharCode(iterator.current)) {
+      // MARK: Left Bracket
+      case r'(':
+        bracketStack.add(0);
+        tokens.add(LambdaToken(LambdaTokenType.LBRACE, null));
+        break;
+      // MARK: Right Bracket
+      case r')':
+        // MARK: Extraneous Right Bracket
+        if (bracketStack.length == 1) return null;
+        // Remove out-of-scope variables.
+        boundedVarStack.removeRange(0, bracketStack.removeLast());
+        tokens.add(LambdaToken(LambdaTokenType.RBRACE, null));
+        // Add space if necessary.
+        if (iterator.moveNext()) {
+          if (blank.hasMatch(String.fromCharCode(iterator.current)) ||
+              String.fromCharCode(iterator.current) == '(') {
+            tokens.add(LambdaToken(LambdaTokenType.SPACE, null));
+          } else {
+            iterator.movePrevious();
+          }
+        }
+        break;
+      // MARK: Lambda
+      case r'λ':
+      case r'/':
+      case r'\':
+        bracketStack.last++;
+        if (!iterator.moveNext()) return null;
+        while (blank.hasMatch(String.fromCharCode(iterator.current))) {
+          if (!iterator.moveNext()) return null;
+        }
+
+        // Determine the name of the variable.
+        final tempVarBuffer = StringBuffer();
+        if (!alpha.hasMatch(String.fromCharCode(iterator.current))) return null;
+        while (alphanumeric.hasMatch(String.fromCharCode(iterator.current))) {
+          tempVarBuffer.write(String.fromCharCode(iterator.current));
+          if (!iterator.moveNext()) return null;
+        }
+        if (String.fromCharCode(iterator.current) == '.') {
+          if (!iterator.moveNext()) return null;
+          iterator.movePrevious();
+        }
+
+        final tempVar = tempVarBuffer.toString();
+        tokens.add(LambdaToken(LambdaTokenType.LAMBDA, null));
+        boundedVarStack.insert(0, tempVar);
+        break;
+      default:
+        // MARK: Ignore Space
+        if (blank.hasMatch(String.fromCharCode(iterator.current))) break;
+
+        if (alpha.hasMatch(String.fromCharCode(iterator.current))) {
+          final tempVarBuffer = StringBuffer();
+          while (alphanumeric.hasMatch(String.fromCharCode(iterator.current))) {
+            tempVarBuffer.write(String.fromCharCode(iterator.current));
+            if (!iterator.moveNext()) break;
+          }
+
+          final tempVar = tempVarBuffer.toString();
+          var index = boundedVarStack.indexOf(tempVar);
+          if (index != -1) {
+            tokens.add(LambdaToken(LambdaTokenType.VARIABLE, index));
+          } else if ((index = freeVarStack.indexOf(tempVar)) != -1) {
+            tokens.add(LambdaToken(
+              LambdaTokenType.VARIABLE,
+              boundedVarStack.length + index,
+            ));
+          } else {
+            tokens.add(LambdaToken(
+              LambdaTokenType.VARIABLE,
+              boundedVarStack.length + freeVarStack.length,
+            ));
+            freeVarStack.add(tempVar);
+          }
+          // Add space if necessary.
+          if (iterator.current >= 0 &&
+              blank.hasMatch(String.fromCharCode(iterator.current))) {
+            tokens.add(LambdaToken(LambdaTokenType.SPACE, null));
+          } else {
+            iterator.movePrevious();
+          }
+          break;
+        }
+        return null;
+    }
+  }
+
+  // Trim for space.
+  if (tokens.last.type == LambdaTokenType.SPACE) tokens.removeLast();
+
+  return tokens;
+}
+
+/// Parse a [List]<[LambdaToken] to a [Lambda]?.
+///
+/// Returns null if the tokens do not represent a valid lambda expression.
+Lambda? _lambdaParser(List<LambdaToken> tokens) {
+  final lambdaStack = <Lambda>[];
+  final opStack = <LambdaTokenType>[LambdaTokenType.RBRACE];
+  if (tokens.isEmpty) return null;
+  for (final token in tokens) {
+    switch (token.type) {
+      case LambdaTokenType.LAMBDA:
+        opStack.add(LambdaTokenType.LAMBDA);
+        break;
+      case LambdaTokenType.SPACE:
+        while (opStack.last == LambdaTokenType.SPACE) {
+          opStack.removeLast();
+          final lambda2 = lambdaStack.removeLast();
+          final lambda1 = lambdaStack.removeLast();
+          lambdaStack.add(Lambda(
+            type: LambdaType.APPLICATION,
+            exp1: lambda1,
+            exp2: lambda2,
+          ));
+        }
+        opStack.add(LambdaTokenType.SPACE);
+        break;
+      case LambdaTokenType.LBRACE:
+        opStack.add(LambdaTokenType.LBRACE);
+        break;
+      case LambdaTokenType.RBRACE:
+        while (true) {
+          final op = opStack.removeLast();
+          if (op == LambdaTokenType.LBRACE) break;
+          if (op == LambdaTokenType.RBRACE) return null;
+          if (op == LambdaTokenType.LAMBDA) {
+            lambdaStack.add(Lambda.abstract(lambdaStack.removeLast()));
+            continue;
+          }
+          final lambda2 = lambdaStack.removeLast();
+          final lambda1 = lambdaStack.removeLast();
+          lambdaStack.add(Lambda(
+            type: LambdaType.APPLICATION,
+            exp1: lambda1,
+            exp2: lambda2,
+          ));
+        }
+        break;
+      case LambdaTokenType.VARIABLE:
+        lambdaStack.add(Lambda.fromIndex(token.index!));
+        break;
+    }
+  }
+
+  while (opStack.last != LambdaTokenType.RBRACE) {
+    final op = opStack.removeLast();
+    if (op == LambdaTokenType.LAMBDA) {
+      if (lambdaStack.isEmpty) return null;
+      lambdaStack.add(Lambda.abstract(lambdaStack.removeLast()));
+      continue;
+    }
+    if (op == LambdaTokenType.SPACE) {
+      if (lambdaStack.length <= 1) return null;
+      final lambda2 = lambdaStack.removeLast();
+      final lambda1 = lambdaStack.removeLast();
+      lambdaStack.add(Lambda(
+        type: LambdaType.APPLICATION,
+        exp1: lambda1,
+        exp2: lambda2,
+      ));
+      continue;
+    }
+    return null;
+  }
+
+  return lambdaStack.last;
+}
+
+extension ToLambdaExtension on String {
+  Lambda? toLambda() {
+    final tokens = lambdaLexer(this);
+    if (tokens == null) return null;
+    return _lambdaParser(tokens);
+  }
+}
