@@ -43,6 +43,7 @@ List<LambdaToken>? lambdaLexer(String str) {
   final freeVarStack = <String>[];
   final bracketStack = [0];
   final alpha = RegExp(r'^[a-zA-Z]+$');
+  final numeric = RegExp(r'^[0-9]+$');
   final alphanumeric = RegExp(r'^[a-zA-Z0-9]+$');
   final blank = RegExp(r'^[\r\n\t\v ]+$');
   while (iterator.moveNext()) {
@@ -75,12 +76,19 @@ List<LambdaToken>? lambdaLexer(String str) {
       case r'\':
         bracketStack.last++;
         if (!iterator.moveNext()) return null;
+        // Ignore spaces.
         while (blank.hasMatch(String.fromCharCode(iterator.current))) {
           if (!iterator.moveNext()) return null;
         }
 
         // Determine the name of the variable.
         final tempVarBuffer = StringBuffer();
+        // MARK: Anonymous Variable
+        if (String.fromCharCode(iterator.current) == '.') {
+          tokens.add(LambdaToken(LambdaTokenType.LAMBDA, null));
+          boundedVarStack.insert(0, '');
+          break;
+        }
         if (!alpha.hasMatch(String.fromCharCode(iterator.current))) return null;
         while (alphanumeric.hasMatch(String.fromCharCode(iterator.current))) {
           tempVarBuffer.write(String.fromCharCode(iterator.current));
@@ -98,7 +106,7 @@ List<LambdaToken>? lambdaLexer(String str) {
       default:
         // MARK: Ignore Space
         if (blank.hasMatch(String.fromCharCode(iterator.current))) break;
-
+        // MARK: Named Variable
         if (alpha.hasMatch(String.fromCharCode(iterator.current))) {
           final tempVarBuffer = StringBuffer();
           while (alphanumeric.hasMatch(String.fromCharCode(iterator.current))) {
@@ -128,6 +136,31 @@ List<LambdaToken>? lambdaLexer(String str) {
             tokens.add(LambdaToken(LambdaTokenType.SPACE, null));
           } else {
             iterator.movePrevious();
+          }
+          break;
+        }
+        // MARK: De Bruijn Index
+        if (numeric.hasMatch(String.fromCharCode(iterator.current))) {
+          var index = 0;
+          while (numeric.hasMatch(String.fromCharCode(iterator.current))) {
+            index *= 10;
+            index += int.parse(String.fromCharCode(iterator.current));
+            if (!iterator.moveNext()) break;
+          }
+          // Does not support De Bruijn Index for free variables.
+          if (index >= boundedVarStack.length) return null;
+          tokens.add(LambdaToken(LambdaTokenType.VARIABLE, index));
+          if (iterator.current >= 0) {
+            // Does not allow letters immediately after an index.
+            if (alpha.hasMatch(String.fromCharCode(iterator.current))) {
+              return null;
+            }
+            // Add space if necessary.
+            if (blank.hasMatch(String.fromCharCode(iterator.current))) {
+              tokens.add(LambdaToken(LambdaTokenType.SPACE, null));
+            } else {
+              iterator.movePrevious();
+            }
           }
           break;
         }

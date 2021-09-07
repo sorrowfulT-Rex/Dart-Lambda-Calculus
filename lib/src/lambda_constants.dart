@@ -171,6 +171,15 @@ class LambdaConstants {
   /// Church number: 7.
   static final lambdaSeven = 7.toChurchNumber();
 
+  /// Church number: 8.
+  static final lambdaEight = 8.toChurchNumber();
+
+  /// Church number: 9.
+  static final lambdaNine = 9.toChurchNumber();
+
+  /// Church number: 10.
+  static final lambdaTen = 10.toChurchNumber();
+
   /// The diverging omega expression.
   static final omega = Lambda.applyAll([
     Lambda.abstract(

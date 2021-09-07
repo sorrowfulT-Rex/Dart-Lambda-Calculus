@@ -35,22 +35,39 @@ void _printExamples() {
 void _parseLambda() {
   // This function parses several lambda expressions from String.
 
+  String str;
   Lambda? temp;
 
   print('Lambda parser: ');
 
   print("1. Print the 'succ' expression:");
-  temp = 'λa. λb. λc. b (a b c)'.toLambda();
-  print('    ' + temp.toString());
+  str = 'λa. λb. λc. b (a b c)';
+  temp = str.toLambda();
+  print('    original: $str');
+  print('    parsed:   ' + temp.toString());
   // The names of the variables are not preserved (everything is converted to
   // x1, x2 etc.), but otherwise they are syntactically identical.
   // We can also use slash and backslash to replace the lambda letter.
   print('2. Print the Y-Combinator:');
-  temp = r'/x. (\y. x (\z. y y z)) (/y. x (/z. y y z))'.toLambda();
-  print('    ' + temp.toString());
+  str = r'/x. (\y. x (\z. y y z)) (/y. x (/z. y y z))';
+  temp = str.toLambda();
+  print('    original: $str');
+  print('    parsed:   ' + temp.toString());
   print('3. Print an invalid lambda expression:');
   temp = 'λx. '.toLambda();
   print('    ' + temp.toString());
+  // We can omit the variable after 'λ' if it is not used.
+  print('4. Print a lambda expression with an unused variable:');
+  str = 'λx. λ. x';
+  temp = str.toLambda();
+  print('    original: $str');
+  print('    parsed:   ' + temp.toString());
+  // We can also parse lambda expression written in De Bruijn Indices.
+  print('5. Print a lambda expression with De Bruijn Indices:');
+  str = 'λ. λ. 1 (1 0)';
+  temp = str.toLambda();
+  print('    original: $str');
+  print('    parsed:   ' + temp.toString());
   print('');
 }
 
