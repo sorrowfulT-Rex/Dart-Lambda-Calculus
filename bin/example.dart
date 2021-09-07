@@ -4,12 +4,15 @@ void main(List<String> arguments) {
   // This main function is a walkthrough for this lambda-calculus interpreter,
   // assuming you already know about untyped lambda-calculus.
   // Check out each function for more details.
+
+  print('PART I:  PURE UNTYPED LAMBDA CALCULUS\n');
   _printExamples();
   _parseLambda();
   _evaluationsByValue();
   _fullEvaluations();
   _evaluationsByName();
   _factorial();
+  print('');
 }
 
 void _printExamples() {
@@ -44,7 +47,7 @@ void _parseLambda() {
   str = 'λa. λb. λc. b (a b c)';
   temp = str.toLambda();
   print('    original: $str');
-  print('    parsed:   ' + temp.toString());
+  print('    parsed:   $temp');
   // The names of the variables are not preserved (everything is converted to
   // x1, x2 etc.), but otherwise they are syntactically identical.
   // We can also use slash and backslash to replace the lambda letter.
@@ -52,22 +55,24 @@ void _parseLambda() {
   str = r'/x. (\y. x (\z. y y z)) (/y. x (/z. y y z))';
   temp = str.toLambda();
   print('    original: $str');
-  print('    parsed:   ' + temp.toString());
+  print('    parsed:   $temp');
   print('3. Print an invalid lambda expression:');
-  temp = 'λx. '.toLambda();
-  print('    ' + temp.toString());
+  str = 'λx. ';
+  temp = str.toLambda();
+  print('    original: $str');
+  print('    parsed:   $temp');
   // We can omit the variable after 'λ' if it is not used.
   print('4. Print a lambda expression with an unused variable:');
   str = 'λx. λ. x';
   temp = str.toLambda();
   print('    original: $str');
-  print('    parsed:   ' + temp.toString());
+  print('    parsed:   $temp');
   // We can also parse lambda expression written in De Bruijn Indices.
   print('5. Print a lambda expression with De Bruijn Indices:');
   str = 'λ. λ. 1 (1 0)';
   temp = str.toLambda();
   print('    original: $str');
-  print('    parsed:   ' + temp.toString());
+  print('    parsed:   $temp');
   print('');
 }
 
@@ -86,7 +91,7 @@ void _evaluationsByValue() {
   ]);
   // We use the .eval1() method to evaluate a lambda expression by one step.
   print("1. Evaluate 'test true 2 1' step-by-step: ");
-  print('    ' + temp.toString());
+  print('    $temp');
   print('  = ' + temp.eval1().toString());
   print('  = ' + temp.eval1().eval1().toString());
   print('  = ' + temp.eval1().eval1().eval1().toString());
@@ -100,7 +105,7 @@ void _evaluationsByValue() {
   ]);
   // We use the .eval() method to evaluate a lambda expression fully.
   print("2. Evaluate 'test false 2 1' directly to its simplest form: ");
-  print('    ' + temp.toString() + '\n  = ' + temp.eval().toString());
+  print('    $temp' + '\n  = ' + temp.eval().toString());
   temp = Lambda(
     type: LambdaType.ABSTRACTION,
     exp1: Lambda.applyAll(
@@ -109,7 +114,7 @@ void _evaluationsByValue() {
   );
   // Demonstration of the "call by value" scheme.
   print('3. An application within an abstraction is not reduced: ');
-  print('    ' + temp.toString() + '\n  = ' + temp.eval().toString());
+  print('    $temp' + '\n  = ' + temp.eval().toString());
   temp = Lambda.applyAll([
     LambdaConstants.lambdaSucc,
     LambdaConstants.lambdaTwo,
@@ -117,9 +122,9 @@ void _evaluationsByValue() {
   // Another example: 'succ 2' results an expression behaviourally equivalent to
   // but syntactically distinct from 3.
   print("4. Evaluate 'succ 2', but the result is not the same as '3': ");
-  print('    ' + temp.toString() + '\n  = ' + temp.eval().toString());
+  print('    $temp' + '\n  = ' + temp.eval().toString());
   print("5. Evaluate 'succ 2', converting it to a natural number: ");
-  print('    ' + temp.toString() + '\n  = ' + temp.toInt().toString());
+  print('    $temp' + '\n  = ' + temp.toInt().toString());
   print('');
 }
 
@@ -139,7 +144,7 @@ void _fullEvaluations() {
   // in .eval() method to evaluate a lambda expression through full
   // beta-reduction.
   print("1. Evaluate '(+) 2 3' directly to its simplest form: ");
-  print('    ' + temp.toString());
+  print('    $temp');
   print('  = ' +
       temp.eval(evalType: LambdaEvaluationType.FULL_REDUCTION).toString());
   temp = Lambda.applyAll([
@@ -148,7 +153,7 @@ void _fullEvaluations() {
     LambdaConstants.lambdaThree,
   ]);
   print("2. Evaluate '(*) 2 3' directly to its simplest form: ");
-  print('    ' + temp.toString());
+  print('    $temp');
   print('  = ' +
       temp.eval(evalType: LambdaEvaluationType.FULL_REDUCTION).toString());
   temp = Lambda.applyAll([
@@ -157,7 +162,7 @@ void _fullEvaluations() {
     LambdaConstants.lambdaThree,
   ]);
   print("3. Evaluate '(^) 2 3' directly to its simplest form: ");
-  print('    ' + temp.toString());
+  print('    $temp');
   print('  = ' +
       temp.eval(evalType: LambdaEvaluationType.FULL_REDUCTION).toString());
   print('');
@@ -179,7 +184,7 @@ void _evaluationsByName() {
   // in .eval1() method to evaluate a lambda expression through the
   // "call-by-name" scheme.
   print("1. Evaluate 'true 1 omega' lazily (call by name): ");
-  print('    ' + temp.toString());
+  print('    $temp');
   print('  = ' +
       temp.eval1(evalType: LambdaEvaluationType.CALL_BY_NAME).toString());
   print('  = ' +
@@ -189,7 +194,7 @@ void _evaluationsByName() {
           .toString());
   // In contrast, the expression diverges in a "call by value" scheme.
   print("2. Evaluate 'true 1 omega' strictly (call by value): ");
-  print('    ' + temp.toString());
+  print('    $temp');
   print('  = ' + temp.eval1().eval1().toString());
   print('  = ' + temp.eval1().eval1().eval1().toString());
   print('  = ' + temp.eval1().eval1().eval1().toString());

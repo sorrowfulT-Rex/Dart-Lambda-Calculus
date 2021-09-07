@@ -1,5 +1,5 @@
-import 'package:lambda_calculus/src/lambda.dart';
 import 'package:lambda_calculus/src/lambda_evaluator.dart';
+import 'package:lambda_calculus/src/lambda.dart';
 
 extension LambdaConversionIntExtension on int {
   /// Convert a natural number to church number.

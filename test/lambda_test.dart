@@ -1,7 +1,4 @@
-import 'package:lambda_calculus/src/lambda_constants.dart';
-import 'package:lambda_calculus/src/lambda_conversion.dart';
-import 'package:lambda_calculus/src/lambda_evaluator.dart';
-import 'package:lambda_calculus/src/lambda.dart';
+import 'package:lambda_calculus/lambda_calculus.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -87,7 +84,7 @@ void main() {
         Lambda.applyAll([
           LambdaConstants.lambdaAnd,
           LambdaConstants.lambdaFalse,
-          LambdaConstants.omega
+          LambdaConstants.omega,
         ]).eval(evalType: LambdaEvaluationType.CALL_BY_NAME),
         LambdaConstants.lambdaFalse,
       );

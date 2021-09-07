@@ -1,5 +1,5 @@
-import 'package:lambda_calculus/src/lambda.dart';
 import 'package:lambda_calculus/src/lambda_conversion.dart';
+import 'package:lambda_calculus/src/lambda.dart';
 
 /// Common lambda expressions.
 class LambdaConstants {
