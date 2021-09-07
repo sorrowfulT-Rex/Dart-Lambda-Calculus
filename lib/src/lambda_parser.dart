@@ -36,7 +36,7 @@ class LambdaToken {
 /// Convert a [String] to a [List]<[LambdaToken]>?.
 ///
 /// Returns null only if the [String] is not a valid lambda expression.
-List<LambdaToken>? lambdaLexer(String str) {
+List<LambdaToken>? _lambdaLexer(String str) {
   final tokens = <LambdaToken>[];
   final iterator = str.runes.iterator;
   final boundedVarStack = <String>[];
@@ -174,7 +174,7 @@ List<LambdaToken>? lambdaLexer(String str) {
   return tokens;
 }
 
-/// Parse a [List]<[LambdaToken] to a [Lambda]?.
+/// Parse a [List]<[LambdaToken]> to a [Lambda]?.
 ///
 /// Returns null if the tokens do not represent a valid lambda expression.
 Lambda? _lambdaParser(List<LambdaToken> tokens) {
@@ -252,7 +252,7 @@ Lambda? _lambdaParser(List<LambdaToken> tokens) {
 
 extension ToLambdaExtension on String {
   Lambda? toLambda() {
-    final tokens = lambdaLexer(this);
+    final tokens = _lambdaLexer(this);
     if (tokens == null) return null;
     return _lambdaParser(tokens);
   }

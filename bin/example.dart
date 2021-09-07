@@ -43,13 +43,13 @@ void _parseLambda() {
 
   print('Lambda parser: ');
 
+  // The names of the variables are not preserved (everything is converted to
+  // x1, x2 etc.), but otherwise they are syntactically identical.
   print("1. Print the 'succ' expression:");
   str = 'λa. λb. λc. b (a b c)';
   temp = str.toLambda();
   print('    original: $str');
   print('    parsed:   $temp');
-  // The names of the variables are not preserved (everything is converted to
-  // x1, x2 etc.), but otherwise they are syntactically identical.
   // We can also use slash and backslash to replace the lambda letter.
   print('2. Print the Y-Combinator:');
   str = r'/x. (\y. x (\z. y y z)) (/y. x (/z. y y z))';
@@ -143,7 +143,7 @@ void _fullEvaluations() {
   // We pass 'LambdaEvaluationType.FULL_REDUCTION' to the 'evalType' parameter
   // in .eval() method to evaluate a lambda expression through full
   // beta-reduction.
-  print("1. Evaluate '(+) 2 3' directly to its simplest form: ");
+  print("1. Evaluate '2 + 3' directly to its simplest form: ");
   print('    $temp');
   print('  = ' +
       temp.eval(evalType: LambdaEvaluationType.FULL_REDUCTION).toString());
@@ -152,7 +152,7 @@ void _fullEvaluations() {
     LambdaConstants.lambdaTwo,
     LambdaConstants.lambdaThree,
   ]);
-  print("2. Evaluate '(*) 2 3' directly to its simplest form: ");
+  print("2. Evaluate '2 * 3' directly to its simplest form: ");
   print('    $temp');
   print('  = ' +
       temp.eval(evalType: LambdaEvaluationType.FULL_REDUCTION).toString());
@@ -161,7 +161,7 @@ void _fullEvaluations() {
     LambdaConstants.lambdaTwo,
     LambdaConstants.lambdaThree,
   ]);
-  print("3. Evaluate '(^) 2 3' directly to its simplest form: ");
+  print("3. Evaluate '2 ^ 3' directly to its simplest form: ");
   print('    $temp');
   print('  = ' +
       temp.eval(evalType: LambdaEvaluationType.FULL_REDUCTION).toString());
@@ -195,8 +195,8 @@ void _evaluationsByName() {
   // In contrast, the expression diverges in a "call by value" scheme.
   print("2. Evaluate 'true 1 omega' strictly (call by value): ");
   print('    $temp');
+  print('  = ' + temp.eval1().toString());
   print('  = ' + temp.eval1().eval1().toString());
-  print('  = ' + temp.eval1().eval1().eval1().toString());
   print('  = ' + temp.eval1().eval1().eval1().toString());
   print('  = ' + temp.eval1().eval1().eval1().eval1().toString());
   print('  = ' + temp.eval1().eval1().eval1().eval1().eval1().toString());
@@ -219,7 +219,7 @@ void _factorial() {
     (x4 (\x5. (\x6. \x7. \x8. x8 x6 x7) ((\x6. x6 \x7. \x8. x8) x5)
     ((\x6. \x7. \x8. x7 (x6 x7 x8)) ((\x6. x6 \x7. \x8. x8) x5)))
     ((\x5. \x6. \x7. x7 x5 x6) (\x5. \x6. x6) (\x5. \x6. x6)))) x2)))
-    (\x3. \x4. x4)
+    (\x3. x3)
     '''
         .toLambda()!,
   ]);
