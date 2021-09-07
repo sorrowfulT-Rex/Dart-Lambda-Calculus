@@ -1,4 +1,4 @@
-/// The class of types of lambda expressions.
+/// Types of lambda expressions.
 enum LambdaType {
   VARIABLE,
   APPLICATION,
@@ -65,7 +65,6 @@ class Lambda {
       }
 
       final first = lambdas.removeAt(0);
-
       return Lambda(
         type: LambdaType.APPLICATION,
         exp1: first,
@@ -195,12 +194,13 @@ class Lambda {
   @override
   String toString() {
     if (type == LambdaType.DUMMY) return '[DUMMY]';
-    final lambdaStack = <Lambda?>[];
 
+    final lambdaStack = <Lambda?>[];
     final sb = StringBuffer();
     var cur = this;
     var depth = 0;
     final useBraces = [false];
+
     while (true) {
       if (cur.type == LambdaType.VARIABLE) {
         sb.write('x${depth - cur.index!}');

@@ -1,5 +1,6 @@
 import 'package:lambda_calculus/src/lambda.dart';
 
+/// Types of lambda tokens.
 enum LambdaTokenType {
   LAMBDA,
   SPACE,
@@ -8,6 +9,7 @@ enum LambdaTokenType {
   VARIABLE,
 }
 
+/// The class representing lambda tokens after lexing.
 class LambdaToken {
   LambdaToken(
     this.type,
@@ -41,11 +43,14 @@ List<LambdaToken>? _lambdaLexer(String str) {
   final iterator = str.runes.iterator;
   final boundedVarStack = <String>[];
   final freeVarStack = <String>[];
+  // The int represents the number of 'λ's since here before the next bracket.
+  // We push an 0 on left brackets and pop at right brackets.
   final bracketStack = [0];
   final alpha = RegExp(r'^[a-zA-Z]+$');
   final numeric = RegExp(r'^[0-9]+$');
   final alphanumeric = RegExp(r'^[a-zA-Z0-9]+$');
   final blank = RegExp(r'^[\r\n\t\v ]+$');
+
   while (iterator.moveNext()) {
     switch (String.fromCharCode(iterator.current)) {
       // MARK: Left Bracket
@@ -63,11 +68,10 @@ List<LambdaToken>? _lambdaLexer(String str) {
         // Add space if necessary.
         if (iterator.moveNext()) {
           if (blank.hasMatch(String.fromCharCode(iterator.current)) ||
-              String.fromCharCode(iterator.current) == '(') {
+              String.fromCharCode(iterator.current) != ')') {
             tokens.add(LambdaToken(LambdaTokenType.SPACE, null));
-          } else {
-            iterator.movePrevious();
           }
+          iterator.movePrevious();
         }
         break;
       // MARK: Lambda
@@ -89,15 +93,22 @@ List<LambdaToken>? _lambdaLexer(String str) {
           boundedVarStack.insert(0, '');
           break;
         }
-        if (!alpha.hasMatch(String.fromCharCode(iterator.current))) return null;
+        if (!alpha.hasMatch(String.fromCharCode(iterator.current))) {
+          tokens.add(LambdaToken(LambdaTokenType.LAMBDA, null));
+          boundedVarStack.insert(0, '');
+          iterator.movePrevious();
+          break;
+        }
+        // MARK: Explicit Variable
         while (alphanumeric.hasMatch(String.fromCharCode(iterator.current))) {
           tempVarBuffer.write(String.fromCharCode(iterator.current));
           if (!iterator.moveNext()) return null;
         }
-        if (String.fromCharCode(iterator.current) == '.') {
-          if (!iterator.moveNext()) return null;
-          iterator.movePrevious();
+        if (String.fromCharCode(iterator.current) == '.' &&
+            !iterator.moveNext()) {
+          return null;
         }
+        iterator.movePrevious();
 
         final tempVar = tempVarBuffer.toString();
         tokens.add(LambdaToken(LambdaTokenType.LAMBDA, null));
@@ -117,26 +128,31 @@ List<LambdaToken>? _lambdaLexer(String str) {
           final tempVar = tempVarBuffer.toString();
           var index = boundedVarStack.indexOf(tempVar);
           if (index != -1) {
+            // Bounded variable.
             tokens.add(LambdaToken(LambdaTokenType.VARIABLE, index));
           } else if ((index = freeVarStack.indexOf(tempVar)) != -1) {
+            // Free variable (appeared before).
             tokens.add(LambdaToken(
               LambdaTokenType.VARIABLE,
               boundedVarStack.length + index,
             ));
           } else {
+            // Free variable (first appearance).
             tokens.add(LambdaToken(
               LambdaTokenType.VARIABLE,
               boundedVarStack.length + freeVarStack.length,
             ));
             freeVarStack.add(tempVar);
           }
+
           // Add space if necessary.
           if (iterator.current >= 0 &&
-              blank.hasMatch(String.fromCharCode(iterator.current))) {
+              (blank.hasMatch(String.fromCharCode(iterator.current)) ||
+                  String.fromCharCode(iterator.current) == '(')) {
             tokens.add(LambdaToken(LambdaTokenType.SPACE, null));
-          } else {
-            iterator.movePrevious();
           }
+          iterator.movePrevious();
+
           break;
         }
         // MARK: De Bruijn Index
@@ -150,17 +166,18 @@ List<LambdaToken>? _lambdaLexer(String str) {
           // Does not support De Bruijn Index for free variables.
           if (index >= boundedVarStack.length) return null;
           tokens.add(LambdaToken(LambdaTokenType.VARIABLE, index));
+
           if (iterator.current >= 0) {
             // Does not allow letters immediately after an index.
             if (alpha.hasMatch(String.fromCharCode(iterator.current))) {
               return null;
             }
             // Add space if necessary.
-            if (blank.hasMatch(String.fromCharCode(iterator.current))) {
+            if (blank.hasMatch(String.fromCharCode(iterator.current)) ||
+                String.fromCharCode(iterator.current) == '(') {
               tokens.add(LambdaToken(LambdaTokenType.SPACE, null));
-            } else {
-              iterator.movePrevious();
             }
+            iterator.movePrevious();
           }
           break;
         }
@@ -168,7 +185,7 @@ List<LambdaToken>? _lambdaLexer(String str) {
     }
   }
 
-  // Trim for space.
+  // Trim for potential final space.
   if (tokens.last.type == LambdaTokenType.SPACE) tokens.removeLast();
 
   return tokens;
@@ -180,6 +197,7 @@ List<LambdaToken>? _lambdaLexer(String str) {
 Lambda? _lambdaParser(List<LambdaToken> tokens) {
   final lambdaStack = <Lambda>[];
   final opStack = <LambdaTokenType>[LambdaTokenType.RBRACE];
+
   if (tokens.isEmpty) return null;
   for (final token in tokens) {
     switch (token.type) {

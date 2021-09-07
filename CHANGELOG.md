@@ -7,3 +7,12 @@
 ## 1.0.1
 
 - Add support for parsing lambda expressions written with De Bruijn Indices.
+
+## 1.0.2
+
+- Can omit spaces in lambda expression strings as long as there is no ambiguity.
+	1. `)(`
+	2. `a(b`
+	3. `a)b`
+	4. `.(a`
+	5. `λ0`

@@ -213,13 +213,9 @@ void _factorial() {
   final factorial = Lambda.applyAll([
     LambdaConstants.yCombinator,
     r'''
-    \x1. \x2. (\x3. \x4. \x5. x3 x4 x5)
-    ((\x3. x3 (\x4. \x5. \x6. x6) \x4. \x5. x4) x2) (\x3. \x4. \x5. x4 x5)
-    (\x3. (\x4. \x5. \x6. x4 (x5 x6)) x2 (x1 ((\x4. (\x5. x5 \x6. \x7. x6)
-    (x4 (\x5. (\x6. \x7. \x8. x8 x6 x7) ((\x6. x6 \x7. \x8. x8) x5)
-    ((\x6. \x7. \x8. x7 (x6 x7 x8)) ((\x6. x6 \x7. \x8. x8) x5)))
-    ((\x5. \x6. \x7. x7 x5 x6) (\x5. \x6. x6) (\x5. \x6. x6)))) x2)))
-    (\x3. x3)
+    \a\b(\c\d\e c d e)((\c c(\d\e\a a)\d\e d)b)(\c\d\e d e)(\c(\d\e\a d(e a))b
+    (a((\d(\e e(\a\b a))(d(\e(\a\b\c c a b)((\a a(\b\c c))e)((\a\b\c b(a b c))
+    ((\a a(\b\c c))e)))((\e\a\b b e a)(\e\a a)(\e\a a))))b)))(\0)
     '''
         .toLambda()!,
   ]);
