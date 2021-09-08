@@ -1,4 +1,5 @@
 import 'package:lambda_calculus/lambda_calculus.dart';
+import 'package:lambda_calculus/src/lambda_constants.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -22,9 +23,16 @@ void main() {
       expect(LambdaConstants.yCombinator, LambdaConstants.yCombinator.clone());
     },
   );
+  test('Parse Test', () {
+    expect(
+      r'\x1(λx2. x1 (λx3. x2 x2 x3)) (λx2. x1 (λ x2 x2 0))'.toLambda(),
+      LambdaConstants.yCombinator,
+    );
+    expect(r'((x1 (\x2 x2))'.toLambda(), null);
+  });
   test(
     'Evaluation Test',
-    () async {
+    () {
       expect(
         Lambda.applyAll([
           LambdaConstants.lambdaTest,

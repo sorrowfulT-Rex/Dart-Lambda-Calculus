@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+
 /// Types of lambda expressions.
 enum LambdaType {
   VARIABLE,
@@ -75,7 +77,57 @@ class Lambda {
     return _applyAllReversed(lambdas);
   }
 
-  /// A higher-order function that turns recursion on [Lambda] to iteration.
+  /// A higher-order function that iterates on the [Lambda], returning a value.
+  R fold<R, T>({
+    required T initialParam,
+    required R Function(T) select,
+    T Function(Lambda, T)? onVar,
+    T Function(T)? onAbsEnter,
+    T Function(T)? onAbsExit,
+    T Function(T)? onAppEnter,
+    T Function(T)? onAppExit,
+  }) {
+    final lambdaStack = [this];
+    final isExp1Stack = [true];
+    var param = initialParam;
+
+    while (lambdaStack.isNotEmpty) {
+      print(lambdaStack.last);
+      if (lambdaStack.last.type == LambdaType.VARIABLE) {
+        param = onVar?.call(lambdaStack.last, param) ?? param;
+        while (true) {
+          lambdaStack.removeLast();
+          if (lambdaStack.isEmpty) break;
+          if (lambdaStack.last.type == LambdaType.ABSTRACTION) {
+            isExp1Stack.removeLast();
+            param = onAbsExit?.call(param) ?? param;
+          } else if (isExp1Stack.last) {
+            lambdaStack.add(lambdaStack.last.exp2!);
+            isExp1Stack.last = false;
+            param = onAppExit?.call(param) ?? param;
+            param = onAppEnter?.call(param) ?? param;
+            break;
+          } else {
+            isExp1Stack.removeLast();
+            param = onAppExit?.call(param) ?? param;
+          }
+        }
+      } else if (lambdaStack.last.type == LambdaType.ABSTRACTION) {
+        lambdaStack.add(lambdaStack.last.exp1!);
+        isExp1Stack.add(true);
+        param = onAbsEnter?.call(param) ?? param;
+      } else {
+        lambdaStack.add(lambdaStack.last.exp1!);
+        isExp1Stack.add(true);
+        param = onAppEnter?.call(param) ?? param;
+      }
+    }
+
+    return select(param);
+  }
+
+  /// A higher-order function that turns recursion on the [Lambda] to iteration,
+  /// returning another [Lambda].
   Lambda fmap<T>({
     required Lambda Function(Lambda, T?) onVar,
     T? initialParam,
@@ -142,6 +194,78 @@ class Lambda {
           index: lambda.index,
         ),
       );
+
+  /// Returns the number of free variables in the lambda expression.
+  ///
+  /// If the 'isDistinct' parameter is set to true, count for the number of
+  /// distinct free variables; otherwise count for the total appearances.
+  int freeCount({bool isDistinct = false}) =>
+      fold<int, Tuple3<int, int, Set<int>>>(
+        initialParam: Tuple3(0, 0, {}),
+        select: (tuple3) => tuple3.value1,
+        onAbsEnter: (tuple3) => tuple3.copyWith(value2: tuple3.value2 + 1),
+        onAbsExit: (tuple3) => tuple3.copyWith(value2: tuple3.value2 - 1),
+        onVar: isDistinct
+            ? (lambda, tuple3) {
+                if (tuple3.value2 - lambda.index! <= 0 &&
+                    !tuple3.value3.contains(tuple3.value2 - lambda.index!)) {
+                  tuple3.value3.add(tuple3.value2 - lambda.index!);
+                  return tuple3.copyWith(value1: tuple3.value1 + 1);
+                } else {
+                  return tuple3;
+                }
+              }
+            : (lambda, tuple3) {
+                if (tuple3.value2 - lambda.index! <= 0) {
+                  return tuple3.copyWith(value1: tuple3.value1 + 1);
+                } else {
+                  return tuple3;
+                }
+              },
+      );
+  // {
+  //   var count = 0;
+  //   final lambdaStack = [this];
+  //   final isExp1Stack = [true];
+  //   var depth = 0;
+  //   final indices = <int>{};
+
+  //   while (lambdaStack.isNotEmpty) {
+  //     if (lambdaStack.last.type == LambdaType.VARIABLE) {
+  //       if (lambdaStack.last.index! >= depth) {
+  //         if (isDistinct && indices.contains(depth - lambdaStack.last.index!)) {
+  //         } else {
+  //           indices.add(depth - lambdaStack.last.index!);
+  //           count++;
+  //         }
+  //       }
+  //       while (true) {
+  //         lambdaStack.removeLast();
+  //         if (lambdaStack.isEmpty) break;
+  //         var tempLambda = lambdaStack.removeLast();
+  //         if (tempLambda.type == LambdaType.ABSTRACTION) {
+  //           isExp1Stack.removeLast();
+  //           depth--;
+  //         } else if (isExp1Stack.last) {
+  //           lambdaStack.add(tempLambda.exp2!);
+  //           isExp1Stack.last = false;
+  //           break;
+  //         } else {
+  //           isExp1Stack.removeLast();
+  //         }
+  //       }
+  //     } else if (lambdaStack.last.type == LambdaType.ABSTRACTION) {
+  //       lambdaStack.add(lambdaStack.last.exp1!);
+  //       isExp1Stack.add(true);
+  //       depth++;
+  //     } else {
+  //       lambdaStack.add(lambdaStack.last.exp1!);
+  //       isExp1Stack.add(true);
+  //     }
+  //   }
+
+  //   return count;
+  // }
 
   @override
   int get hashCode => toString().hashCode;

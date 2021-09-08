@@ -16,3 +16,7 @@
 	3. `a)b`
 	4. `.(a`
 	5. `λ0`
+
+## 1.0.3
+
+- Calculate the number of free variable, both by appearance and by distinct count.

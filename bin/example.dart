@@ -1,4 +1,5 @@
 import 'package:lambda_calculus/lambda_calculus.dart';
+import 'package:lambda_calculus/src/lambda_constants.dart';
 
 void main(List<String> arguments) {
   // This main function is a walkthrough for this lambda-calculus interpreter,
@@ -213,9 +214,9 @@ void _factorial() {
   final factorial = Lambda.applyAll([
     LambdaConstants.yCombinator,
     r'''
-    \a\b(\\c\2 c 0)((\0(\\\0)(\\1))b)(\\\1 0)(\(\\d\2(d 0))b(a((\c(\0(\\1))
-    (c(\d(\a\b\0 a b)((\0(\\0))d)((\a\\1(a 1 0))((\0(\\0))d)))((\d\a\0 d a)(\\0)
-    (\\0))))b)))(\0)
+    \a\b(\\c\2(c)(0))((\0(\\\0)(\\1))b)(\\\1(0))(\(\\d\2(d(0)))b(a((\c(\0(\\1))
+    (c(\d(\a\b\0(a)(b))((\0(\\0))d)((\a\\1(a(1)(0)))((\0(\\0))d)))((\d\a\0(d)
+    (a))(\\0)(\\0))))b)))(\0)
     '''
         .toLambda()!,
   ]);
