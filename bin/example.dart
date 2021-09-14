@@ -1,5 +1,4 @@
 import 'package:lambda_calculus/lambda_calculus.dart';
-import 'package:lambda_calculus/src/lambda_constants.dart';
 
 void main(List<String> arguments) {
   // This main function is a walkthrough for this lambda-calculus interpreter,

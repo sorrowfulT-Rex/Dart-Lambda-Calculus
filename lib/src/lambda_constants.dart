@@ -4,29 +4,25 @@ import 'package:lambda_calculus/src/lambda.dart';
 /// Common lambda expressions.
 class LambdaConstants {
   /// The identity expression.
-  static final lambdaIdentity = Lambda.abstract(
-    Lambda(type: LambdaType.VARIABLE, index: 0),
-  );
+  static final lambdaIdentity = Lambda.abstract(Lambda.fromIndex(1));
 
   /// Church boolean: true.
   static final lambdaTrue = Lambda.abstract(
-    Lambda.abstract(Lambda(type: LambdaType.VARIABLE, index: 1)),
+    Lambda.abstract(Lambda.fromIndex(1)),
   );
 
   /// Church boolean: false.
   static final lambdaFalse = Lambda.abstract(
-    Lambda.abstract(Lambda(type: LambdaType.VARIABLE, index: 0)),
+    Lambda.abstract(Lambda.fromIndex(0)),
   );
 
   /// The if expression.
   static final lambdaTest = Lambda.abstract(
     Lambda.abstract(
       Lambda.abstract(
-        Lambda.applyAll([
-          Lambda(type: LambdaType.VARIABLE, index: 2),
-          Lambda(type: LambdaType.VARIABLE, index: 1),
-          Lambda(type: LambdaType.VARIABLE, index: 0),
-        ]),
+        Lambda.applyAll(
+          [Lambda.fromIndex(2), Lambda.fromIndex(1), Lambda.fromIndex(0)],
+        ),
       ),
     ),
   );
@@ -34,61 +30,45 @@ class LambdaConstants {
   /// The and expression.
   static final lambdaAnd = Lambda.abstract(
     Lambda.abstract(
-      Lambda.applyAll([
-        Lambda(type: LambdaType.VARIABLE, index: 1),
-        Lambda(type: LambdaType.VARIABLE, index: 0),
-        lambdaFalse,
-      ]),
+      Lambda.applyAll(
+        [Lambda.fromIndex(1), Lambda.fromIndex(0), lambdaFalse],
+      ),
     ),
   );
 
   /// The or expression.
   static final lambdaOr = Lambda.abstract(
     Lambda.abstract(
-      Lambda.applyAll([
-        Lambda(type: LambdaType.VARIABLE, index: 1),
-        lambdaTrue,
-        Lambda(type: LambdaType.VARIABLE, index: 0),
-      ]),
+      Lambda.applyAll(
+        [Lambda.fromIndex(1), lambdaTrue, Lambda.fromIndex(0)],
+      ),
     ),
   );
 
   /// The not expression.
   static final lambdaNot = Lambda.abstract(
-    Lambda.applyAll([
-      Lambda(type: LambdaType.VARIABLE, index: 0),
-      lambdaFalse,
-      lambdaTrue,
-    ]),
+    Lambda.applyAll([Lambda.fromIndex(0), lambdaFalse, lambdaTrue]),
   );
 
   /// The church pair.
   static final lambdaPair = Lambda.abstract(
     Lambda.abstract(
       Lambda.abstract(
-        Lambda.applyAll([
-          Lambda(type: LambdaType.VARIABLE, index: 0),
-          Lambda(type: LambdaType.VARIABLE, index: 2),
-          Lambda(type: LambdaType.VARIABLE, index: 1),
-        ]),
+        Lambda.applyAll(
+          [Lambda.fromIndex(0), Lambda.fromIndex(2), Lambda.fromIndex(1)],
+        ),
       ),
     ),
   );
 
   /// The fst expression.
   static final lambdaFst = Lambda.abstract(
-    Lambda.applyAll([
-      Lambda(type: LambdaType.VARIABLE, index: 0),
-      LambdaConstants.lambdaTrue,
-    ]),
+    Lambda.applyAll([Lambda.fromIndex(0), LambdaConstants.lambdaTrue]),
   );
 
   /// The snd expression.
   static final lambdaSnd = Lambda.abstract(
-    Lambda.applyAll([
-      Lambda(type: LambdaType.VARIABLE, index: 0),
-      LambdaConstants.lambdaFalse,
-    ]),
+    Lambda.applyAll([Lambda.fromIndex(0), LambdaConstants.lambdaFalse]),
   );
 
   /// The succ (+1) expression.
@@ -100,12 +80,12 @@ class LambdaConstants {
       Lambda.abstract(
         Lambda.abstract(
           Lambda.applyAll([
-            Lambda(type: LambdaType.VARIABLE, index: 3),
-            Lambda(type: LambdaType.VARIABLE, index: 1),
+            Lambda.fromIndex(3),
+            Lambda.fromIndex(1),
             Lambda.applyAll([
-              Lambda(type: LambdaType.VARIABLE, index: 2),
-              Lambda(type: LambdaType.VARIABLE, index: 1),
-              Lambda(type: LambdaType.VARIABLE, index: 0),
+              Lambda.fromIndex(2),
+              Lambda.fromIndex(1),
+              Lambda.fromIndex(0),
             ]),
           ]),
         ),
@@ -118,11 +98,8 @@ class LambdaConstants {
     Lambda.abstract(
       Lambda.abstract(
         Lambda.applyAll([
-          Lambda(type: LambdaType.VARIABLE, index: 2),
-          Lambda.applyAll([
-            Lambda(type: LambdaType.VARIABLE, index: 1),
-            Lambda(type: LambdaType.VARIABLE, index: 0),
-          ]),
+          Lambda.fromIndex(2),
+          Lambda.applyAll([Lambda.fromIndex(1), Lambda.fromIndex(0)]),
         ]),
       ),
     ),
@@ -131,18 +108,15 @@ class LambdaConstants {
   /// The power expression.
   static final lambdaPower = Lambda.abstract(
     Lambda.abstract(
-      Lambda.applyAll([
-        Lambda(type: LambdaType.VARIABLE, index: 0),
-        Lambda(type: LambdaType.VARIABLE, index: 1),
-      ]),
+      Lambda.applyAll([Lambda.fromIndex(0), Lambda.fromIndex(1)]),
     ),
   );
 
   /// The is_zero expression.
   static final lambdaIsZero = Lambda.abstract(
     Lambda.applyAll([
-      Lambda(type: LambdaType.VARIABLE, index: 0),
-      Lambda(type: LambdaType.ABSTRACTION, exp1: LambdaConstants.lambdaFalse),
+      Lambda.fromIndex(0),
+      Lambda.abstract(lambdaFalse),
       LambdaConstants.lambdaTrue,
     ]),
   );
@@ -184,15 +158,12 @@ class LambdaConstants {
   static final omega = Lambda.applyAll([
     Lambda.abstract(
       Lambda.applyAll([
-        Lambda(type: LambdaType.VARIABLE, index: 0),
-        Lambda(type: LambdaType.VARIABLE, index: 0),
+        Lambda.fromIndex(0),
+        Lambda.fromIndex(0),
       ]),
     ),
     Lambda.abstract(
-      Lambda.applyAll([
-        Lambda(type: LambdaType.VARIABLE, index: 0),
-        Lambda(type: LambdaType.VARIABLE, index: 0),
-      ]),
+      Lambda.applyAll([Lambda.fromIndex(0), Lambda.fromIndex(0)]),
     ),
   ]);
 
@@ -204,16 +175,16 @@ class LambdaConstants {
       exp1: Lambda.abstract(
         Lambda(
           type: LambdaType.APPLICATION,
-          exp1: Lambda(type: LambdaType.VARIABLE, index: 1),
+          exp1: Lambda.fromIndex(1),
           exp2: Lambda.abstract(
             Lambda(
               type: LambdaType.APPLICATION,
               exp1: Lambda(
                 type: LambdaType.APPLICATION,
-                exp1: Lambda(type: LambdaType.VARIABLE, index: 1),
-                exp2: Lambda(type: LambdaType.VARIABLE, index: 1),
+                exp1: Lambda.fromIndex(1),
+                exp2: Lambda.fromIndex(1),
               ),
-              exp2: Lambda(type: LambdaType.VARIABLE, index: 0),
+              exp2: Lambda.fromIndex(0),
             ),
           ),
         ),
@@ -221,16 +192,16 @@ class LambdaConstants {
       exp2: Lambda.abstract(
         Lambda(
           type: LambdaType.APPLICATION,
-          exp1: Lambda(type: LambdaType.VARIABLE, index: 1),
+          exp1: Lambda.fromIndex(1),
           exp2: Lambda.abstract(
             Lambda(
               type: LambdaType.APPLICATION,
               exp1: Lambda(
                 type: LambdaType.APPLICATION,
-                exp1: Lambda(type: LambdaType.VARIABLE, index: 1),
-                exp2: Lambda(type: LambdaType.VARIABLE, index: 1),
+                exp1: Lambda.fromIndex(1),
+                exp2: Lambda.fromIndex(1),
               ),
-              exp2: Lambda(type: LambdaType.VARIABLE, index: 0),
+              exp2: Lambda.fromIndex(0),
             ),
           ),
         ),

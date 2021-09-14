@@ -65,7 +65,7 @@ List<LambdaToken>? _lambdaLexer(String str) {
         // Remove out-of-scope variables.
         boundedVarStack.removeRange(0, bracketStack.removeLast());
         tokens.add(LambdaToken(LambdaTokenType.RBRACE, null));
-        // Add space if necessary.
+        // MARK: Space if Necessary
         if (iterator.moveNext()) {
           if (blank.hasMatch(String.fromCharCode(iterator.current)) ||
               String.fromCharCode(iterator.current) != ')') {
@@ -140,7 +140,7 @@ List<LambdaToken>? _lambdaLexer(String str) {
             freeVarStack.add(tempVar);
           }
 
-          // Add space if necessary.
+          // MARK: Space if Necessary
           if (iterator.current >= 0 &&
               (blank.hasMatch(String.fromCharCode(iterator.current)) ||
                   String.fromCharCode(iterator.current) == '(')) {
@@ -167,7 +167,7 @@ List<LambdaToken>? _lambdaLexer(String str) {
             if (alpha.hasMatch(String.fromCharCode(iterator.current))) {
               return null;
             }
-            // Add space if necessary.
+            // MARK: Space if Necessary
             if (blank.hasMatch(String.fromCharCode(iterator.current)) ||
                 String.fromCharCode(iterator.current) == '(') {
               tokens.add(LambdaToken(LambdaTokenType.SPACE, null));
@@ -194,27 +194,33 @@ Lambda? _lambdaParser(List<LambdaToken> tokens) {
   final opStack = <LambdaTokenType>[LambdaTokenType.RBRACE];
 
   if (tokens.isEmpty) return null;
+
+  // Shunting Yard Algorithm.
   for (final token in tokens) {
     switch (token.type) {
+      // MARK: Lambda
+      // Has lowest precedence.
       case LambdaTokenType.LAMBDA:
         opStack.add(LambdaTokenType.LAMBDA);
         break;
+      // MARK: Application
+      // Has hitghes precedence.
       case LambdaTokenType.SPACE:
         while (opStack.last == LambdaTokenType.SPACE) {
           opStack.removeLast();
           final lambda2 = lambdaStack.removeLast();
           final lambda1 = lambdaStack.removeLast();
-          lambdaStack.add(Lambda(
-            type: LambdaType.APPLICATION,
-            exp1: lambda1,
-            exp2: lambda2,
-          ));
+          lambdaStack.add(
+            Lambda(type: LambdaType.APPLICATION, exp1: lambda1, exp2: lambda2),
+          );
         }
         opStack.add(LambdaTokenType.SPACE);
         break;
+      // MARK: Left Bracket
       case LambdaTokenType.LBRACE:
         opStack.add(LambdaTokenType.LBRACE);
         break;
+      // MARK: Left Bracket
       case LambdaTokenType.RBRACE:
         while (true) {
           final op = opStack.removeLast();
@@ -226,11 +232,9 @@ Lambda? _lambdaParser(List<LambdaToken> tokens) {
           }
           final lambda2 = lambdaStack.removeLast();
           final lambda1 = lambdaStack.removeLast();
-          lambdaStack.add(Lambda(
-            type: LambdaType.APPLICATION,
-            exp1: lambda1,
-            exp2: lambda2,
-          ));
+          lambdaStack.add(
+            Lambda(type: LambdaType.APPLICATION, exp1: lambda1, exp2: lambda2),
+          );
         }
         break;
       case LambdaTokenType.VARIABLE:
@@ -241,22 +245,23 @@ Lambda? _lambdaParser(List<LambdaToken> tokens) {
 
   while (opStack.last != LambdaTokenType.RBRACE) {
     final op = opStack.removeLast();
+    // MARK: Lambda
     if (op == LambdaTokenType.LAMBDA) {
       if (lambdaStack.isEmpty) return null;
       lambdaStack.add(Lambda.abstract(lambdaStack.removeLast()));
       continue;
     }
+    // MARK: Application
     if (op == LambdaTokenType.SPACE) {
       if (lambdaStack.length <= 1) return null;
       final lambda2 = lambdaStack.removeLast();
       final lambda1 = lambdaStack.removeLast();
-      lambdaStack.add(Lambda(
-        type: LambdaType.APPLICATION,
-        exp1: lambda1,
-        exp2: lambda2,
-      ));
+      lambdaStack.add(
+        Lambda(type: LambdaType.APPLICATION, exp1: lambda1, exp2: lambda2),
+      );
       continue;
     }
+    // MARK: Invalid Operator
     return null;
   }
 
