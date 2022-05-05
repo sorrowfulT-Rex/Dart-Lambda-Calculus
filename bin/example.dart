@@ -93,10 +93,10 @@ void _evaluationsByValue() {
   print("1. Evaluate 'test true 2 1' step-by-step: ");
   print('    $temp');
   print('  = ' + temp.eval1().toString());
-  print('  = ' + temp.eval1().eval1().toString());
-  print('  = ' + temp.eval1().eval1().eval1().toString());
-  print('  = ' + temp.eval1().eval1().eval1().eval1().toString());
-  print('  = ' + temp.eval1().eval1().eval1().eval1().eval1().toString());
+  print('  = ' + temp.eval1()!.eval1().toString());
+  print('  = ' + temp.eval1()!.eval1()!.eval1().toString());
+  print('  = ' + temp.eval1()!.eval1()!.eval1()!.eval1().toString());
+  print('  = ' + temp.eval1()!.eval1()!.eval1()!.eval1()!.eval1().toString());
   temp = Lambda.applyAll([
     LambdaConstants.lambdaTest,
     LambdaConstants.lambdaFalse,
@@ -189,17 +189,17 @@ void _evaluationsByName() {
       temp.eval1(evalType: LambdaEvaluationType.CALL_BY_NAME).toString());
   print('  = ' +
       temp
-          .eval1(evalType: LambdaEvaluationType.CALL_BY_NAME)
+          .eval1(evalType: LambdaEvaluationType.CALL_BY_NAME)!
           .eval1(evalType: LambdaEvaluationType.CALL_BY_NAME)
           .toString());
   // In contrast, the expression diverges in a "call by value" scheme.
   print("2. Evaluate 'true 1 omega' strictly (call by value): ");
   print('    $temp');
   print('  = ' + temp.eval1().toString());
-  print('  = ' + temp.eval1().eval1().toString());
-  print('  = ' + temp.eval1().eval1().eval1().toString());
-  print('  = ' + temp.eval1().eval1().eval1().eval1().toString());
-  print('  = ' + temp.eval1().eval1().eval1().eval1().eval1().toString());
+  print('  = ' + temp.eval1()!.eval1().toString());
+  print('  = ' + temp.eval1()!.eval1()!.eval1().toString());
+  print('  = ' + temp.eval1()!.eval1()!.eval1()!.eval1().toString());
+  print('  = ' + temp.eval1()!.eval1()!.eval1()!.eval1()!.eval1().toString());
   print('  ...');
   print('');
 }

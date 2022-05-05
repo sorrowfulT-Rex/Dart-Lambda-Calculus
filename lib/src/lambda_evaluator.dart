@@ -30,7 +30,7 @@ extension LambdaEvaluationExtension on Lambda {
         onVar: (lambda, param) =>
             param!.value1 == lambda.index ? param.value2.last : lambda,
         onAbsEnter: (param) {
-          param!.value2.add(term._shift(1, 0));
+          param!.value2.add(param.value2.last._shift(1, 0));
           return Tuple2(param.value1 + 1, param.value2);
         },
         onAbsExit: (param) {
@@ -54,22 +54,22 @@ extension LambdaEvaluationExtension on Lambda {
   Lambda eval({
     LambdaEvaluationType evalType = LambdaEvaluationType.CALL_BY_VALUE,
   }) {
-    var result = this;
+    Lambda? result = this;
+    var prev = this;
 
-    while (true) {
-      try {
-        result = result.eval1(evalType: evalType);
-      } on UnimplementedError catch (_) {
-        return result;
-      }
+    while (result != null) {
+      prev = result;
+      result = result.eval1(evalType: evalType);
     }
+
+    return prev;
   }
 
   /// Evaluate for one step; throws [UnimplementedError] when the lambda
   /// expression is not reduceable.
   ///
   /// Avoids recursion.
-  Lambda eval1({
+  Lambda? eval1({
     LambdaEvaluationType evalType = LambdaEvaluationType.CALL_BY_VALUE,
   }) {
     switch (evalType) {
@@ -192,6 +192,6 @@ extension LambdaEvaluationExtension on Lambda {
         if (isReduced) return result!;
         break;
     }
-    throw UnimplementedError('Irreduceable Expression!');
+    return null;
   }
 }
